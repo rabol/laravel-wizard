@@ -266,7 +266,7 @@ trait Wizardable
      * @param  string  $method
      * @return string
      */
-    public function getActionUrl(string $method, $parameters = [])
+    public function getActionUrl_orig(string $method, $parameters = [])
     {
         // If the method string does not match @, it must be converted
         // to the action method name.
@@ -275,6 +275,22 @@ trait Wizardable
         }
 
         return action($method, $parameters);
+    }
+
+    public function getActionUrl(string $method, $parameters = [])
+    {
+
+        // If the method string does not match @, it must be converted
+        // to the action method name.
+        if (preg_match('/^[^@]+$/', $method)) {
+            $method = $this->getActionMethod($method);
+        }
+
+        $nameSpace = config('wizard.namespace.controllers');
+        if(!Str::endsWith($nameSpace,'\\'))
+            $nameSpace = Str::finish($nameSpace,'\\');
+
+        return app('url')->action( $nameSpace . $method, $parameters, true);
     }
 
     /**
